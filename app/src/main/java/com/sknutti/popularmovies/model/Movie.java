@@ -1,4 +1,4 @@
-package com.sknutti.popularmovies;
+package com.sknutti.popularmovies.model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

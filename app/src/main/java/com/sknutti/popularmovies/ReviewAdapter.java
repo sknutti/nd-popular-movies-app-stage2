@@ -2,38 +2,32 @@ package com.sknutti.popularmovies;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.sknutti.popularmovies.data.MovieContract;
-import com.squareup.picasso.Picasso;
 
-public class MovieAdapter extends CursorAdapter {
-    private static final String LOG_TAG = MovieAdapter.class.getSimpleName();
-    public static final Uri BASE_POSTER_URI = Uri.parse("http://image.tmdb.org/t/p/");
-    public static final String PHONE_SIZE = "w185";
+public class ReviewAdapter extends CursorAdapter {
+    private static final String LOG_TAG = ReviewAdapter.class.getSimpleName();
 
     private Context mContext;
     private static int mLoaderId;
 
     public static class ViewHolder {
-        public final ImageView imageView;
-        public final TextView textView;
-
+        public final TextView authorView;
+        public final TextView contentView;
 
         public ViewHolder(View view){
-            imageView = (ImageView) view.findViewById(R.id.movie_poster);
-            textView = (TextView) view.findViewById(R.id.movie_title);
+            authorView = (TextView) view.findViewById(R.id.review_author);
+            contentView = (TextView) view.findViewById(R.id.review_content);
         }
     }
 
-    public MovieAdapter(Context context, Cursor c, int flags, int loaderId) {
+    public ReviewAdapter(Context context, Cursor c, int flags, int loaderId) {
         super(context, c, flags);
         mContext = context;
         Log.d(LOG_TAG, "Creating cursor...");
@@ -42,7 +36,7 @@ public class MovieAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        int layoutId = R.layout.movie_item;
+        int layoutId = R.layout.review_item;
         View view = LayoutInflater.from(context).inflate(layoutId, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);
         view.setTag(viewHolder);
@@ -53,9 +47,10 @@ public class MovieAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-        int imageIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER_PATH);
-        String posterPath = cursor.getString(imageIndex);
+        String author = cursor.getString(MovieContract.ReviewEntry.COL_REVIEW_AUTHOR);
+        viewHolder.authorView.setText(author);
 
-        Picasso.with(context).load(BASE_POSTER_URI + PHONE_SIZE + posterPath).into(viewHolder.imageView);
+        String content = cursor.getString(MovieContract.ReviewEntry.COL_REVIEW_CONTENT);
+        viewHolder.contentView.setText(content);
     }
 }

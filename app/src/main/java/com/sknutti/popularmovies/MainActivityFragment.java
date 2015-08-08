@@ -18,7 +18,14 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import com.sknutti.popularmovies.api.tmdbApi;
 import com.sknutti.popularmovies.data.MovieContract;
+import com.sknutti.popularmovies.model.Movie;
+import com.sknutti.popularmovies.model.MovieList;
+import com.sknutti.popularmovies.model.Review;
+import com.sknutti.popularmovies.model.ReviewList;
+import com.sknutti.popularmovies.model.Trailer;
+import com.sknutti.popularmovies.model.TrailerList;
 
 import retrofit.Callback;
 import retrofit.RestAdapter;
@@ -36,6 +43,10 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     private static final int CURSOR_LOADER_ID = 0;
 
     public MainActivityFragment() {
+    }
+
+    public interface ClickCallback {
+        void onItemSelected(Uri uri, String title);
     }
 
     @Override
@@ -58,13 +69,12 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor = (Cursor) mMovieAdapter.getItem(position);
                 Uri uri = ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI, cursor.getInt(MovieContract.MovieEntry.COL_MOVIE_ID));
-                // create fragment
-                DetailFragment detailFragment = DetailFragment.newInstance(uri);
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, detailFragment)
-                        .addToBackStack(null).commit();
+
+                ((ClickCallback) getActivity()).onItemSelected(uri, cursor.getString(MovieContract.MovieEntry.COL_MOVIE_TITLE));
             }
         });
+
+        //TODO: add progress bar for loading posters
 
         return rootView;
     }
@@ -119,7 +129,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
         private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
         private static final String API = "http://api.themoviedb.org/3";
-        private static final String API_KEY = "";
+        private static final String API_KEY = "8c7d6ffe3386288b6e01fec70a0c04e6";
 
         @Override
         protected Void doInBackground(String... params) {
@@ -154,10 +164,10 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                                     MovieContract.MovieEntry._ID + " = ?",
                                     new String[]{String.valueOf(movie.getId())});
                         } else {
-                        resolver.insert(MovieContract.MovieEntry.CONTENT_URI, values);
+                            resolver.insert(MovieContract.MovieEntry.CONTENT_URI, values);
                         }
 
-                        api.getMovieDetails(movieId, API_KEY, "trailers", new Callback<Movie>() {
+                        api.getMovieDetails(movieId, API_KEY, new Callback<Movie>() {
                             @Override
                             public void success(Movie movie, Response response) {
                                 ContentValues values = new ContentValues();
@@ -173,6 +183,70 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                             public void failure(RetrofitError error) {
                                 // what do you do when there's a failure??
                                 Log.e(LOG_TAG, "Failed to fetch movie id #" + movieId + " data from TMDB...");
+                            }
+
+                        });
+
+                        api.getMovieTrailers(movieId, API_KEY, new Callback<TrailerList>() {
+                            @Override
+                            public void success(TrailerList trailerList, Response response) {
+                                for (Trailer trailer : trailerList.getTrailers()) {
+                                    ContentValues values = new ContentValues();
+                                    values.put(MovieContract.TrailerEntry._ID, trailer.getId());
+                                    values.put(MovieContract.TrailerEntry.COLUMN_MOVIE_ID, movieId);
+                                    values.put(MovieContract.TrailerEntry.COLUMN_TRAILER_NAME, trailer.getName());
+                                    values.put(MovieContract.TrailerEntry.COLUMN_TRAILER_SITE, trailer.getSite());
+                                    values.put(MovieContract.TrailerEntry.COLUMN_TRAILER_KEY, trailer.getKey());
+                                    values.put(MovieContract.TrailerEntry.COLUMN_TRAILER_SIZE, trailer.getSize());
+                                    values.put(MovieContract.TrailerEntry.COLUMN_TYPE, trailer.getType());
+
+                                    Cursor result = getActivity().getContentResolver().query(MovieContract.TrailerEntry.CONTENT_URI,
+                                            null,
+                                            MovieContract.TrailerEntry._ID + " = ?",
+                                            new String[]{String.valueOf(trailer.getId())},
+                                            null);
+                                    if (result.getCount() == 0) {
+                                        getActivity().getContentResolver().insert(MovieContract.TrailerEntry.CONTENT_URI, values);
+                                    }
+                                    result.close();
+                                }
+                            }
+
+                            @Override
+                            public void failure(RetrofitError error) {
+                                // what do you do when there's a failure??
+                                Log.e(LOG_TAG, "Failed to fetch trailers for movie id #" + movieId + " from TMDB...");
+                            }
+
+                        });
+
+                        api.getMovieReviews(movieId, API_KEY, new Callback<ReviewList>() {
+                            @Override
+                            public void success(ReviewList reviewList, Response response) {
+                                for (Review review : reviewList.getReviews()) {
+                                    ContentValues values = new ContentValues();
+                                    values.put(MovieContract.ReviewEntry._ID, review.getId());
+                                    values.put(MovieContract.ReviewEntry.COLUMN_MOVIE_ID, movieId);
+                                    values.put(MovieContract.ReviewEntry.COLUMN_REVIEW_AUTHOR, review.getAuthor());
+                                    values.put(MovieContract.ReviewEntry.COLUMN_REVIEW_CONTENT, review.getContent());
+                                    values.put(MovieContract.ReviewEntry.COLUMN_REVIEW_URL, review.getUrl());
+
+                                    Cursor result = getActivity().getContentResolver().query(MovieContract.ReviewEntry.CONTENT_URI,
+                                            null,
+                                            MovieContract.ReviewEntry._ID + " = ?",
+                                            new String[]{String.valueOf(review.getId())},
+                                            null);
+                                    if (result.getCount() == 0) {
+                                        getActivity().getContentResolver().insert(MovieContract.ReviewEntry.CONTENT_URI, values);
+                                    }
+                                    result.close();
+                                }
+                            }
+
+                            @Override
+                            public void failure(RetrofitError error) {
+                                // what do you do when there's a failure??
+                                Log.e(LOG_TAG, "Failed to fetch reviews for movie id #" + movieId + " from TMDB...");
                             }
 
                         });
