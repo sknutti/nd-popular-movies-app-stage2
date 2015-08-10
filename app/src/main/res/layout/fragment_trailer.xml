@@ -7,12 +7,12 @@
     android:fontFamily="sans-serif-condensed"
     tools:context="com.sknutti.popularmovies.TrailerFragment">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:text="@string/trailers_list_header"/>
+    <!--<TextView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:paddingLeft="16dp"-->
+        <!--android:paddingRight="16dp"-->
+        <!--android:text="@string/trailers_list_header"/>-->
 
     <ListView
         android:id="@+id/trailer_list"

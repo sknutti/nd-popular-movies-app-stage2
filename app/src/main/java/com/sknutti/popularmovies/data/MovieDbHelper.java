@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class MovieDbHelper extends SQLiteOpenHelper {
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 16;
+    private static final int DATABASE_VERSION = 18;
 
     static final String DATABASE_NAME = "popularmovies.db";
 
@@ -27,6 +27,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                 MovieContract.MovieEntry.COLUMN_POSTER_PATH + " TEXT, " +
                 MovieContract.MovieEntry.COLUMN_POPULARITY + " DECIMAL, " +
                 MovieContract.MovieEntry.COLUMN_MOVIE_LENGTH + " INTEGER NOT NULL, " +
+                MovieContract.MovieEntry.COLUMN_MOVIE_IS_FAVORITE + " INTEGER NOT NULL DEFAULT 0, " +
                 " UNIQUE (" + MovieContract.MovieEntry.COLUMN_MOVIE_TITLE + ", " +
                 MovieContract.MovieEntry.COLUMN_RELEASE_DATE + ") ON CONFLICT REPLACE);";
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_TABLE);

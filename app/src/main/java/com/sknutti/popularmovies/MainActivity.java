@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.facebook.stetho.Stetho;
+import com.sknutti.popularmovies.sync.SyncAdapter;
 
 
 public class MainActivity extends ActionBarActivity implements MainActivityFragment.ClickCallback {
@@ -36,6 +37,8 @@ public class MainActivity extends ActionBarActivity implements MainActivityFragm
                         .enableWebKitInspector(
                                 Stetho.defaultInspectorModulesProvider(this))
                         .build());
+
+        SyncAdapter.initializeSyncAdapter(this);
     }
 
     @Override

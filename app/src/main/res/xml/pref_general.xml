@@ -10,4 +10,11 @@
         android:entryValues="@array/pref_sort_values"
         android:entries="@array/pref_sort_options" />
 
+    <CheckBoxPreference
+        android:title="@string/pref_favorites_label"
+        android:key="@string/pref_favorites_key"
+        android:summaryOff="@string/pref_favorites_false"
+        android:summaryOn="@string/pref_favorites_true"
+        android:defaultValue="@string/pref_favorites_default" />
+
 </PreferenceScreen>

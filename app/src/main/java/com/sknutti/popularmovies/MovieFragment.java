@@ -1,6 +1,7 @@
 package com.sknutti.popularmovies;
 
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.net.Uri;
@@ -73,13 +74,25 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         viewHolder.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(v.getId() == R.id.button_favorite){
-                    boolean result = Utility.setFavorite(getActivity(), String.valueOf(mMovieId));
-                    if (result) {
+                if (v.getId() == R.id.button_favorite) {
+                    boolean setToFavorite = viewHolder.button.getText().toString().equals(getResources().getString(R.string.mark_favorite_button_text));
+
+                    ContentValues values = new ContentValues();
+                    int val = 0;
+                    if (setToFavorite) {
+                        val = 1;
+                    }
+                    values.put(MovieContract.MovieEntry.COLUMN_MOVIE_IS_FAVORITE, val);
+                    int result = getActivity().getContentResolver().update(MovieContract.MovieEntry.CONTENT_URI, values, MovieContract.MovieEntry._ID + " = ?", new String[]{String.valueOf(mMovieId)});
+
+                    if (result > 0 && setToFavorite) {
                         viewHolder.button.setText(getResources().getString(R.string.is_favorite_button_text));
                     } else {
                         viewHolder.button.setText(getResources().getString(R.string.mark_favorite_button_text));
                     }
+//                    MainActivityFragment fragment = (MainActivityFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+//                    fragment.favoriteChanged();
+//                    favoriteChanged();
                 }
             }
         });
@@ -97,6 +110,10 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
+    }
+
+    public void favoriteChanged() {
+        getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, this);
     }
 
     @Override
@@ -131,7 +148,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         viewHolder.lengthView.setText(mDetailCursor.getString(MovieContract.MovieEntry.COL_MOVIE_LENGTH) + " min");
         viewHolder.ratingView.setText(mDetailCursor.getString(MovieContract.MovieEntry.COL_MOVIE_RATING) + "/10");
         viewHolder.synopsisView.setText(mDetailCursor.getString(MovieContract.MovieEntry.COL_MOVIE_SYNOPSIS));
-        if (Utility.isFavorite(getActivity(), String.valueOf(mMovieId))) {
+        if (mDetailCursor.getInt(MovieContract.MovieEntry.COL_MOVIE_IS_FAVORITE) == 1) {
             viewHolder.button.setText(getResources().getString(R.string.is_favorite_button_text));
         } else {
             viewHolder.button.setText(getResources().getString(R.string.mark_favorite_button_text));

@@ -22,6 +22,7 @@ public class MovieContract {
         public static final String COLUMN_POSTER_PATH = "poster_path";
         public static final String COLUMN_POPULARITY = "popularity";
         public static final String COLUMN_MOVIE_LENGTH = "duration";
+        public static final String COLUMN_MOVIE_IS_FAVORITE = "is_favorite";
 
         public static final int COL_MOVIE_ID = 0;
         public static final int COL_MOVIE_TITLE = 1;
@@ -31,6 +32,7 @@ public class MovieContract {
         public static final int COL_POSTER_PATH = 5;
         public static final int COL_POPULARITY = 6;
         public static final int COL_MOVIE_LENGTH = 7;
+        public static final int COL_MOVIE_IS_FAVORITE = 8;
 
         public static final String[] MOVIE_PROJECTION = {
                 MovieEntry._ID,
@@ -40,7 +42,8 @@ public class MovieContract {
                 MovieEntry.COLUMN_MOVIE_RATING,
                 MovieEntry.COLUMN_POSTER_PATH,
                 MovieEntry.COLUMN_POPULARITY,
-                MovieEntry.COLUMN_MOVIE_LENGTH
+                MovieEntry.COLUMN_MOVIE_LENGTH,
+                MovieEntry.COLUMN_MOVIE_IS_FAVORITE
         };
 
         public static final String[] DETAIL_PROJECTION = {

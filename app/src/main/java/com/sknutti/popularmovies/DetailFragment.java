@@ -18,6 +18,7 @@ import com.viewpagerindicator.TitlePageIndicator;
  */
 public class DetailFragment extends Fragment {
     private static final String URI_KEY = "uri_key";
+    private static final String TITLE_KEY = "title_key";
     private DetailPagerAdapter mDetailPagerAdapter;
     private ViewPager mViewPager;
     private View mRootView;
@@ -62,6 +63,7 @@ public class DetailFragment extends Fragment {
 
         if (savedInstanceState != null && savedInstanceState.containsKey(URI_KEY)) {
             mUri = savedInstanceState.getParcelable(URI_KEY);
+            mTitle = savedInstanceState.getString(TITLE_KEY);
         }
 
         mDetailPagerAdapter = new DetailPagerAdapter(getActivity().getSupportFragmentManager(), mUri);
@@ -90,6 +92,7 @@ public class DetailFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelable(URI_KEY, mUri);
+        outState.putString(TITLE_KEY, mTitle);
         super.onSaveInstanceState(outState);
     }
 }
