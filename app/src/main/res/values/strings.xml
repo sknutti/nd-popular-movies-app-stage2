@@ -37,4 +37,5 @@
     <string name="pref_favorites_default">false</string>
     <string name="pref_favorites_false">Showing All Movies</string>
     <string name="pref_favorites_true">Showing Only Favorites</string>
+    <string name="action_share">Share First Trailer</string>
 </resources>

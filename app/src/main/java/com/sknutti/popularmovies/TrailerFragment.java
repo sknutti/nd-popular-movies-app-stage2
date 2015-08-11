@@ -1,6 +1,7 @@
 package com.sknutti.popularmovies;
 
 import android.content.ContentUris;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,8 +9,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -21,6 +27,8 @@ import com.sknutti.popularmovies.data.MovieContract;
  */
 public class TrailerFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private CursorAdapter mTrailersAdapter;
+    private ShareActionProvider mShareActionProvider;
+    private Uri mYoutubeUri;
     private static final int TRAILER_CURSOR_LOADER_ID = 1;
 
     public TrailerFragment() { }
@@ -44,6 +52,7 @@ public class TrailerFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -56,6 +65,29 @@ public class TrailerFragment extends Fragment implements LoaderManager.LoaderCal
         viewHolder.trailersListView.setAdapter(mTrailersAdapter);
 
         return rootView;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        MenuItem item = menu.findItem(R.menu.menu_trailer_fragment);
+        if (item == null) {
+            inflater.inflate(R.menu.menu_trailer_fragment, menu);
+        }
+
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
+        if (mYoutubeUri != null) {
+            mShareActionProvider.setShareIntent(createShareIntent());
+        }
+    }
+
+    private Intent createShareIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_STREAM, mYoutubeUri);
+        return shareIntent;
     }
 
     @Override
@@ -90,7 +122,16 @@ public class TrailerFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mTrailersAdapter.swapCursor(data);
+        if (data != null && data.moveToFirst()) {
+            String youtubeKey = data.getString(MovieContract.TrailerEntry.COL_TRAILER_KEY);
+            mYoutubeUri = Uri.parse("http://www.youtube.com/watch?v=" + youtubeKey);
+
+            mTrailersAdapter.swapCursor(data);
+
+            if (mShareActionProvider != null) {
+                mShareActionProvider.setShareIntent(createShareIntent());
+            }
+        }
     }
 
     @Override
